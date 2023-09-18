@@ -19,7 +19,6 @@ options.add_argument(CHROME_PROFILE_PATH)
 driver = webdriver.Chrome(options=options)
 driver.get("https://app.contaazul.com/#/financeiro/contas-a-receber?view=revenue&amp;source=Financeiro%20%3E%20Contas%20a%20Receber&source=Menu%20Principal")
 
-<<<<<<< HEAD
 #inicio da automação
 # driver.maximize_window()
 # driver.execute_script("document.body.style.zoom='80%'")
@@ -80,6 +79,11 @@ aplicar_contas = driver.find_element(By.XPATH, '//*[@id="bank-filter"]/ul/li[3]/
 aplicar_contas.click()
 time.sleep(10)
  
+#ir para cima
+up = driver.find_element(By.CSS_SELECTOR, 'body')
+up.send_keys(Keys.CONTROL, Keys.HOME)
+time.sleep(2)
+
 #filtrar data
 data = driver.find_element(By.XPATH, '//*[@id="financeTopFilters"]/div[2]/button/span')
 data.click()
@@ -97,33 +101,6 @@ def func(i):
 
 for i in document['nome']:
     func(i)
-=======
-#ler a planilha
-document = pd.read_excel('info.xlsx')
-del document['Saldo Final']
-del document['Tipo do documento']
-del document['Código']
-del document['Referência']
-del document['E-mail']
-del document['Histórico']
-
-#inicio da automação
-time.sleep(30)
-#clicar pra abrir o filtro
-data = driver.find_element(By.XPATH, '//*[@id="financeTopFilters"]/div[2]')
-data.click()
-
-time.sleep(3)
-#filtrar por semana
-semana = driver.find_element(By.XPATH, '//*[@id="financeTopFilters"]/div[2]/ul/li[2]/a')
-semana.click()
-time.sleep(10)
-
-#tirar o filtro de recebido para diminuir o tanto de lançametos
-exibir = driver.find_element(By.XPATH, '//*[@id="type-filter-controller"]')
-exibir.click()
-time.sleep(2)
->>>>>>> dbc3f0ca65ee34dee624ca016ecd15bafb08ff4c
 
 recebido = driver.find_element(By.XPATH, '//*[@id="typeFilterContainer"]/li[4]/a/span[1]')
 recebido.click()

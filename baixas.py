@@ -3,6 +3,7 @@ from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 import time
+from datetime import date
 
 #login automatico
 from config import CHROME_PROFILE_PATH
@@ -11,6 +12,12 @@ control = 0
 #excel
 import pandas as pd
 document = pd.read_excel('info.xlsx')
+
+#formatar planilha para o padrão conta azul
+document['valor'] = document['valor'].apply(lambda x: f'{x:,.2f}')
+document['valor'] = document['valor'].str.replace(',', '#')
+document['valor'] = document['valor'].str.replace('.', ',')
+document['valor'] = document['valor'].str.replace('#', '.')
 print(document.head)
 
 #driver
@@ -20,9 +27,6 @@ driver = webdriver.Chrome(options=options)
 driver.get("https://app.contaazul.com/#/financeiro/contas-a-receber?view=revenue&amp;source=Financeiro%20%3E%20Contas%20a%20Receber&source=Menu%20Principal")
 
 #inicio da automação
-# driver.maximize_window()
-# driver.execute_script("document.body.style.zoom='80%'")
-
 while True:
     try:
         control = driver.find_element(By.XPATH, '//*[@id="statement-list-container"]/table[1]/tbody')
@@ -41,7 +45,6 @@ recebido = driver.find_element(By.XPATH, '//*[@id="typeFilterContainer"]/li[4]/a
 recebido.click()
 time.sleep(1)
 
-#aplicar
 aplicar = driver.find_element(By.XPATH, '//*[@id="type-filter"]/ul/li[2]/div/button')
 aplicar.click()
 time.sleep(10)
@@ -69,11 +72,14 @@ sicredi.click()
 inadimplente = driver.find_element(By.XPATH, '//*[@id="bank-filter"]/ul/div/li[10]/a/span')
 inadimplente.click()
 
+franq_inad = driver.find_element(By.XPATH, '//*[@id="bank-filter"]/ul/div/li[11]/a/span')
+franq_inad.click()
+
 nova_data = driver.find_element(By.XPATH, '//*[@id="bank-filter"]/ul/div/li[16]/a/span')
 nova_data.click()
 
 renovacao = driver.find_element(By.XPATH, '//*[@id="bank-filter"]/ul/div/li[42]/a/span')
-renovacao.click()
+renovacao.click() 
 
 aplicar_contas = driver.find_element(By.XPATH, '//*[@id="bank-filter"]/ul/li[3]/div/button')
 aplicar_contas.click()
@@ -94,43 +100,56 @@ time.sleep(10)
 
 # --------- #
 
-def func(i):
+def func(cliente):
     pesquisar = driver.find_element(By.XPATH, '//*[@id="textSearch"]')
-    pesquisar.send_keys(document['nome'][i])
+    pesquisar.send_keys(Keys.CONTROL, 'a', Keys.DELETE)
+
+    pesquisar.send_keys(document['nome'][cliente])
     time.sleep(4)
 
-for i in document['nome']:
-    func(i)
+    pesquisar.send_keys(Keys.ENTER)
+    time.sleep(10)
 
-recebido = driver.find_element(By.XPATH, '//*[@id="typeFilterContainer"]/li[4]/a/span[1]')
-recebido.click()
-time.sleep(2)
+    valor = driver.find_element(By.XPATH, '//*[@id="statement-list-container"]/table[1]/tbody/tr[1]/td[5]/div[2]')
 
-aplicar = driver.find_element(By.XPATH, '//*[@id="type-filter"]/ul/li[2]/div/button')
-aplicar.click()
-time.sleep(5)
+    if (valor.text != document['valor'][cliente]):
+        return    
 
-#abrir todos lançamentos 
-while True:
-    try:
-        button = driver.find_element(By.XPATH, '//*[@id="conteudo"]/div/div[2]/div[2]/div/div[3]/button')
-        button.click()
-        time.sleep(10)
-    except:
-        break
+    abrir = driver.find_element(By.XPATH, '//*[@id="statement-list-container"]/table[1]/tbody/tr[1]/td[4]/div[1]/span[1]')
+    abrir.click()
+    time.sleep(2)
 
-#pegar o nome dos clientes com base na planilha
+    #conta azul funciona por id de conta, não pelo nome! (conta itau: 29329659)
+    
+    conta = driver.find_element(By.XPATH, '//*[@id="newIdConta"]')
+    banco = driver.find_element(By.XPATH, '//*[@id="idBanco"]').get_attribute('value')
+    if banco != '29329659':
+        conta.click()
+        conta.send_keys(Keys.CONTROL, 'A', Keys.DELETE)
+        conta.send_keys('01.0 [Espelho Itaú] Receitas/Despesas FLUXO')
+        conta.send_keys(Keys.ENTER)
 
-for each_client in document['Nome Cliente']:
-    # try:
-        print(each_client)  
-        
-        cliente = driver.find_element(By.XPATH, f'//span[contains(text(), "{each_client}")]') 
-        cliente.click()
-        time.sleep(10)
-    # except:
-    #     continue
-	
+    today = date.today()
+    data_formatada = today.strftime("%d%m%Y")
+    data_atual = driver.find_element(By.XPATH, '//*[@id="dtVencimento"]')
+    data_atual.click()
+    data_atual.send_keys(data_formatada)
+
+    btn_recebido = driver.find_element(By.XPATH, '//*[@id="formStatement"]/div[2]/div[2]/div[2]/label[4]/div/span[1]')
+    btn_recebido.click()
+    time.sleep(1)
+
+    final = driver.find_element(By.XPATH, '//*[@id="modal-footer-statement"]/div/button')
+    final.click()
+    time.sleep(5)
+
+
+# --------- #
+
+for cliente in range(len(document['nome'])):
+    func(cliente)
+
+
 
     
     

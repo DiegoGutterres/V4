@@ -4,6 +4,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 import time
 from datetime import date
+from api.api import valores
 
 #login automatico
 from config import CHROME_PROFILE_PATH
@@ -11,14 +12,9 @@ control = 0
 
 #excel
 import pandas as pd
-document = pd.read_excel('info.xlsx')
-
-#formatar planilha para o padrão conta azul
-document['valor'] = document['valor'].apply(lambda x: f'{x:,.2f}')
-document['valor'] = document['valor'].str.replace(',', '#')
-document['valor'] = document['valor'].str.replace('.', ',')
-document['valor'] = document['valor'].str.replace('#', '.')
+document = pd.DataFrame(valores, columns=valores[0]).drop(0,axis=0).reset_index(drop=True)
 print(document.head)
+document.set_index('DATA')
 
 #driver
 options = webdriver.ChromeOptions()
@@ -104,7 +100,7 @@ def func(cliente):
     pesquisar = driver.find_element(By.XPATH, '//*[@id="textSearch"]')
     pesquisar.send_keys(Keys.CONTROL, 'a', Keys.DELETE)
 
-    pesquisar.send_keys(document['nome'][cliente])
+    pesquisar.send_keys(document['CLIENTE'][cliente])
     time.sleep(4)
 
     pesquisar.send_keys(Keys.ENTER)
@@ -112,7 +108,7 @@ def func(cliente):
 
     valor = driver.find_element(By.XPATH, '//*[@id="statement-list-container"]/table[1]/tbody/tr[1]/td[5]/div[2]')
 
-    if (valor.text != document['valor'][cliente]):
+    if (valor.text != document['VALOR'][cliente]):
         return    
 
     abrir = driver.find_element(By.XPATH, '//*[@id="statement-list-container"]/table[1]/tbody/tr[1]/td[4]/div[1]/span[1]')
@@ -146,8 +142,9 @@ def func(cliente):
 
 # --------- #
 
-for cliente in range(len(document['nome'])):
+for cliente in range(len(document['CLIENTE'])):
     func(cliente)
+    print(document.head)
 
 
 

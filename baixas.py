@@ -116,7 +116,6 @@ def func(cliente):
     time.sleep(2)
 
     #conta azul funciona por id de conta, não pelo nome! (conta itau: 29329659)
-    
     conta = driver.find_element(By.XPATH, '//*[@id="newIdConta"]')
     banco = driver.find_element(By.XPATH, '//*[@id="idBanco"]').get_attribute('value')
     if banco != '29329659':
@@ -139,12 +138,22 @@ def func(cliente):
     final.click()
     time.sleep(5)
 
-
 # --------- #
 
-for cliente in range(len(document['CLIENTE'])):
+while True:
+    document['VALOR'] = document['VALOR'].str.replace('.', '').str.replace(',','.')
+    for i in range(len(document['VALOR'])):
+        print(document['VALOR'][i])
+        if float(document['VALOR'][i]) < -1000.00:
+            print(f'transferencia de R${document["VALOR"][i]}')
+            cliente = i
+            break
+    break
+
+for l in range(len(document['CLIENTE'])):
+    cliente +=1
     func(cliente)
-    print(document.head)
+
 
 
 

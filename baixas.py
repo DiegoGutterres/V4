@@ -1,8 +1,11 @@
 #server
+import time
+
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
-import time
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
 from datetime import date
 from api.api import valores
 
@@ -32,6 +35,7 @@ while True:
         time.sleep(5)
 
 #exibir
+time.sleep(2)
 exibir = driver.find_element(By.XPATH, '//*[@id="type-filter-controller"]/span')
 exibir.click()
 time.sleep(2)
@@ -99,15 +103,16 @@ time.sleep(10)
 def func(cliente):
     pesquisar = driver.find_element(By.XPATH, '//*[@id="textSearch"]')
     pesquisar.send_keys(Keys.CONTROL, 'a', Keys.DELETE)
-
     pesquisar.send_keys(document['CLIENTE'][cliente])
-    time.sleep(4)
-
     pesquisar.send_keys(Keys.ENTER)
-    time.sleep(10)
+
+    loading = driver.find_element(By.XPATH, '//*[@id="loading"]').get_attribute('style')
+    while loading == 'display: block;':
+        print('sleeping')
+        time.sleep(10)
+
 
     valor = driver.find_element(By.XPATH, '//*[@id="statement-list-container"]/table[1]/tbody/tr[1]/td[5]/div[2]')
-
     if (valor.text != document['VALOR'][cliente]):
         return    
 
@@ -141,17 +146,19 @@ def func(cliente):
 # --------- #
 
 while True:
-    document['VALOR'] = document['VALOR'].str.replace('.', '').str.replace(',','.')
-    for i in range(len(document['VALOR'])):
-        print(document['VALOR'][i])
-        if float(document['VALOR'][i]) < -1000.00:
-            print(f'transferencia de R${document["VALOR"][i]}')
+    transferencia = document['VALOR'].str.replace('.', '').str.replace(',','.')
+    for i in range(len(transferencia)):
+        valor_float = float(transferencia[i])
+        print(float(transferencia[i]))
+
+        if valor_float < -1000.00:
+            print(f'transferencia de R${transferencia[i]}')
             cliente = i
             break
     break
 
 for l in range(len(document['CLIENTE'])):
-    cliente +=1
+    cliente += 1
     func(cliente)
 
 

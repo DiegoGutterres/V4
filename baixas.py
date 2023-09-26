@@ -106,8 +106,9 @@ def func(cliente):
     pesquisar.send_keys(document['CLIENTE'][cliente])
     pesquisar.send_keys(Keys.ENTER)
 
-    loading = driver.find_element(By.XPATH, '//*[@id="loading"]').get_attribute('style')
-    while loading == 'display: block;':
+    time.sleep(10)
+    loading = driver.find_element(By.XPATH, '//*[@id="loadCenter"]').get_attribute('class')
+    while loading == 'progress progress-striped active loadCenterMaior':
         print('sleeping')
         time.sleep(10)
 
@@ -118,7 +119,10 @@ def func(cliente):
 
     abrir = driver.find_element(By.XPATH, '//*[@id="statement-list-container"]/table[1]/tbody/tr[1]/td[4]/div[1]/span[1]')
     abrir.click()
-    time.sleep(2)
+    
+    abriu = driver.find_element(By.XPATH, '/html/body/div[6]/div/div[1]/div/div/div[3]/form/div[2]/div[2]/div[1]/label[1]/input[1]')
+    if (abriu.text == ''):
+        time.sleep(10)
 
     #conta azul funciona por id de conta, não pelo nome! (conta itau: 29329659)
     conta = driver.find_element(By.XPATH, '//*[@id="newIdConta"]')

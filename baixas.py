@@ -22,6 +22,7 @@ document.set_index('DATA')
 #driver
 options = webdriver.ChromeOptions()
 options.add_argument(CHROME_PROFILE_PATH)
+#options.add_argument('--headless') doideira
 driver = webdriver.Chrome(options=options)
 driver.get("https://app.contaazul.com/#/financeiro/contas-a-receber?view=revenue&amp;source=Financeiro%20%3E%20Contas%20a%20Receber&source=Menu%20Principal")
 
@@ -119,10 +120,7 @@ def func(cliente):
 
     abrir = driver.find_element(By.XPATH, '//*[@id="statement-list-container"]/table[1]/tbody/tr[1]/td[4]/div[1]/span[1]')
     abrir.click()
-    
-    abriu = driver.find_element(By.XPATH, '/html/body/div[6]/div/div[1]/div/div/div[3]/form/div[2]/div[2]/div[1]/label[1]/input[1]')
-    if (abriu.text == ''):
-        time.sleep(10)
+    time.sleep(4)
 
     #conta azul funciona por id de conta, não pelo nome! (conta itau: 29329659)
     conta = driver.find_element(By.XPATH, '//*[@id="newIdConta"]')

@@ -27,7 +27,6 @@ options.add_experimental_option(
         "profile.managed_default_content_settings.images": 2,
     }
 )
-#options.add_argument('--headless') #doideira
 driver = webdriver.Chrome(options=options)
 driver.get("https://app.contaazul.com/#/financeiro/contas-a-receber?view=revenue&amp;source=Financeiro%20%3E%20Contas%20a%20Receber&source=Menu%20Principal")
 
@@ -108,13 +107,19 @@ def func(cliente):
 
     time.sleep(10)
     loading = driver.find_element(By.XPATH, '//*[@id="loadCenter"]').get_attribute('class')
+
+    #  - - - - - -- MUDAR ISSO AQUI - - - - - - #
     while loading == 'progress progress-striped active loadCenterMaior':
         print('sleeping')
         time.sleep(10)
 
     valor = driver.find_element(By.XPATH, '//*[@id="statement-list-container"]/table[1]/tbody/tr[1]/td[5]/div[2]')
-    if (valor.text != document['VALOR'][cliente]):
-        return    
+    try: 
+        controle = driver.find_element(By.XPATH, '//*[@id="financeiroSearchBlankSlateContainer"]/p[1]')
+        if controle.text == '						Não encontramos nenhum lançamento neste período para o termo "':
+            return
+    except:
+        None        
 
     #abrir
     driver.find_element(By.XPATH, '//*[@id="statement-list-container"]/table[1]/tbody/tr[1]/td[4]/div[1]/span[1]').click()
@@ -129,7 +134,7 @@ def func(cliente):
         # conta.send_keys('01.0 [Espelho Itaú] Receitas/Despesas FLUXO')
         # conta.send_keys(Keys.ENTER)
         conta.send_keys('01.0 [Espelho Bradesco] Receitas/Despesas FLUXO')
-        time.sleep(2)
+        time.sleep(2)    
 
     today = date.today()
     data_formatada = today.strftime("%d%m%Y")
@@ -139,7 +144,18 @@ def func(cliente):
 
     #recebido
     driver.find_element(By.XPATH, '//*[@id="formStatement"]/div[2]/div[2]/div[2]/label[4]/div/span[1]').click()
-    time.sleep(1)
+    time.sleep(2)
+
+    #multa
+    valor_f = valor.text
+    valor_formatado = valor_f.replace(',', '.')
+    valor_p = document['VALOR'][cliente].replace('.', '').replace(',','.')
+    print(valor_formatado)
+    sobra = float(valor_p) - float(valor_formatado)
+    if (sobra != 0 and sobra < 30):
+        driver.find_element(By.XPATH, '//*[@id="interest"]').send_keys('{:.2f}'.format(sobra))
+    time.sleep(3)
+
 
     #salvar
     driver.find_element(By.XPATH, '//*[@id="finance-save-options"]/div[1]/button[2]').click()
@@ -166,10 +182,3 @@ while True:
 for l in range(len(document['CLIENTE'])):
     func(cliente)
     cliente += 1
-
-
-
-
-    
-    
-    

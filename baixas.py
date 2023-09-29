@@ -40,23 +40,22 @@ while True:
         time.sleep(5)
 
 #exibir
-time.sleep(2)
 driver.find_element(By.XPATH, '//*[@id="type-filter-controller"]/span').click()
-time.sleep(2)
+time.sleep(0.5)
 
 #recebido
 driver.find_element(By.XPATH, '//*[@id="typeFilterContainer"]/li[4]/a/span[1]').click()
 
 #aplicar
 driver.find_element(By.XPATH, '//*[@id="type-filter"]/ul/li[2]/div/button').click()
-time.sleep(10)
+time.sleep(5)
 
 #filtrar contas
 driver.find_element(By.XPATH, '//*[@id="bank-filter"]/button').click()
 
 #all
 driver.find_element(By.XPATH, '//*[@id="bank-filter"]/ul/li[1]/a/span[1]').click()
-time.sleep(1)
+time.sleep(0.3)
 
 #bradesco
 driver.find_element(By.XPATH, '//*[@id="bank-filter"]/ul/div/li[2]/a/span').click()
@@ -84,18 +83,18 @@ driver.find_element(By.XPATH, '//*[@id="bank-filter"]/ul/div/li[42]/a/span').cli
 
 #aplicar
 driver.find_element(By.XPATH, '//*[@id="bank-filter"]/ul/li[3]/div/button').click()
-time.sleep(10)
+time.sleep(5)
  
 #ir para cima
 driver.find_element(By.CSS_SELECTOR, 'body').send_keys(Keys.CONTROL, Keys.HOME)
-time.sleep(2)
+time.sleep(.5)
 
 #filtrar data
 driver.find_element(By.XPATH, '//*[@id="financeTopFilters"]/div[2]/button/span').click()
 
 #mostrar todos
 driver.find_element(By.XPATH, '//*[@id="financeTopFilters"]/div[2]/ul/li[5]/a').click()
-time.sleep(10)
+time.sleep(6)
 
 # --------- #
 
@@ -105,20 +104,19 @@ def func(cliente):
     pesquisar.send_keys(document['CLIENTE'][cliente])
     pesquisar.send_keys(Keys.ENTER)
 
-    time.sleep(10)
-    loading = driver.find_element(By.XPATH, '//*[@id="loadCenter"]').get_attribute('class')
+    # time.sleep(10)
 
-    #  - - - - - -- MUDAR ISSO AQUI - - - - - - #
-    while loading == 'progress progress-striped active loadCenterMaior':
+    loading = driver.find_element(By.XPATH, '//*[@id="loading"]').get_attribute('style')
+    while loading == 'display: block;':
         print('sleeping')
-        time.sleep(10)
+        time.sleep(5)
 
     valor = driver.find_element(By.XPATH, '//*[@id="statement-list-container"]/table[1]/tbody/tr[1]/td[5]/div[2]')
 
     #abrir
     try: 
         driver.find_element(By.XPATH, '//*[@id="statement-list-container"]/table[1]/tbody/tr[1]/td[4]/div[1]/span[1]').click()
-        time.sleep(4)
+        time.sleep(3)
     except:
         return        
 
@@ -134,6 +132,7 @@ def func(cliente):
         conta.send_keys('01.0 [Espelho Bradesco] Receitas/Despesas FLUXO')
         time.sleep(2)    
 
+    #data
     today = date.today()
     data_formatada = today.strftime("%d%m%Y")
     data_atual = driver.find_element(By.XPATH, '//*[@id="dtVencimento"]')

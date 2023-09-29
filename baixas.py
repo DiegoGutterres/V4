@@ -114,16 +114,14 @@ def func(cliente):
         time.sleep(10)
 
     valor = driver.find_element(By.XPATH, '//*[@id="statement-list-container"]/table[1]/tbody/tr[1]/td[5]/div[2]')
-    try: 
-        controle = driver.find_element(By.XPATH, '//*[@id="financeiroSearchBlankSlateContainer"]/p[1]')
-        if controle.text == '						Não encontramos nenhum lançamento neste período para o termo "':
-            return
-    except:
-        None        
 
     #abrir
-    driver.find_element(By.XPATH, '//*[@id="statement-list-container"]/table[1]/tbody/tr[1]/td[4]/div[1]/span[1]').click()
-    time.sleep(4)
+    try: 
+        driver.find_element(By.XPATH, '//*[@id="statement-list-container"]/table[1]/tbody/tr[1]/td[4]/div[1]/span[1]').click()
+        time.sleep(4)
+    except:
+        return        
+
 
     #conta azul funciona por id de conta, não pelo nome! (conta itau: 29329659)
     conta = driver.find_element(By.XPATH, '//*[@id="newIdConta"]')
@@ -148,19 +146,21 @@ def func(cliente):
 
     #multa
     valor_f = valor.text
-    valor_formatado = valor_f.replace(',', '.')
+    valor_formatado = valor_f.replace('.', '').replace(',','.')
     valor_p = document['VALOR'][cliente].replace('.', '').replace(',','.')
     print(valor_formatado)
     sobra = float(valor_p) - float(valor_formatado)
-    if (sobra != 0 and sobra < 30):
-        driver.find_element(By.XPATH, '//*[@id="interest"]').send_keys('{:.2f}'.format(sobra))
+    if (sobra != 0 and sobra in range(0, 30)):
+        driver.find_element(By.XPATH, '//*[@id="interest"]').send_keys('{:.0f}'.format(sobra))
     time.sleep(3)
 
-
     #salvar
-    driver.find_element(By.XPATH, '//*[@id="finance-save-options"]/div[1]/button[2]').click()
+    driver.find_element(By.XPATH, '//*[@id="modal-footer-statement"]/div/button').click()
+
+    # driver.find_element(By.XPATH, '//*[@id="finance-save-options"]/div[1]/button[2]').click()
     time.sleep(5)
     print(f'feito cliente: {document["CLIENTE"][cliente]}')
+    document['FEITO'][cliente].update('feito')
 
 # --------- #
 

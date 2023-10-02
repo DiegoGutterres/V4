@@ -10,7 +10,7 @@ SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly']
 
 # The ID and range of a sample spreadsheet.
 document = '1uZyVnpHfCYwRptwnZLobW2Xnd__-sPn27o16oNpUDAA'
-document_range = 'A:C'
+document_range = 'A:D'
 
 def main():
     creds = None
@@ -37,6 +37,6 @@ def main():
                                 range=document_range).execute()
     values = result.get('values', [])
             
-    return values
+    return values, sheet
 
 valores = main()

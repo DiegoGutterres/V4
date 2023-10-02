@@ -6,8 +6,11 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
-from datetime import date
-from api.api import valores
+from datetime import date 
+from api.api import main
+
+valores, sheet = main()
+
 
 #login automatico
 from config import CHROME_PROFILE_PATH
@@ -69,6 +72,9 @@ driver.find_element(By.XPATH, '//*[@id="bank-filter"]/ul/div/li[4]/a/span').clic
 #sicredi
 driver.find_element(By.XPATH, '//*[@id="bank-filter"]/ul/div/li[5]/a/span').click()
 
+#churn provavel
+driver.find_element(By.XPATH, '//*[@id="bank-filter"]/ul/div/li[9]/a/span').click()
+
 #inad
 driver.find_element(By.XPATH, '//*[@id="bank-filter"]/ul/div/li[10]/a/span').click()
 
@@ -98,20 +104,44 @@ time.sleep(6)
 
 # --------- #
 
+
 def func(cliente):
     pesquisar = driver.find_element(By.XPATH, '//*[@id="textSearch"]')
     pesquisar.send_keys(Keys.CONTROL, 'a', Keys.DELETE)
     pesquisar.send_keys(document['CLIENTE'][cliente])
     pesquisar.send_keys(Keys.ENTER)
 
-    # time.sleep(10)
 
-    loading = driver.find_element(By.XPATH, '//*[@id="loading"]').get_attribute('style')
-    while loading == 'display: block;':
-        print('sleeping')
-        time.sleep(5)
+    while True:
+       loading = driver.find_element(By.XPATH, '//*[@id="loading"]').get_attribute('style')
+       if loading == 'display: block;':         
+          print('sleeping')
+          time.sleep(5)
+       else:
+        break
+    
+    #ver se existe um lançamento
+    exist = driver.find_element(By.XPATH, '//*[@id="statement-list-container"]/table[1]/tbody/tr[1]/td[4]/div[1]').is_displayed()
+    if exist == False:
+        return
+    print(document['CLIENTE'][cliente])
 
+ 
+    #se o valor for mt diferente ele vai só pular pro proximo
     valor = driver.find_element(By.XPATH, '//*[@id="statement-list-container"]/table[1]/tbody/tr[1]/td[5]/div[2]')
+    
+    # -- tem que transformar em float para conseguir comparar --
+    valor_f = valor.text
+    valor_formatado = valor_f.replace('.', '').replace(',','.')
+    valor_p = document['VALOR'][cliente].replace('.', '').replace(',','.')
+    print(valor_formatado)
+    print(valor_p)
+    
+    sobra = float(valor_p) - float(valor_formatado)
+    print(sobra)
+    if (sobra < 0.0 or sobra > 30.0):
+        return
+    
 
     #abrir
     try: 
@@ -129,6 +159,7 @@ def func(cliente):
         conta.send_keys(Keys.CONTROL, 'A', Keys.DELETE)
         # conta.send_keys('01.0 [Espelho Itaú] Receitas/Despesas FLUXO')
         # conta.send_keys(Keys.ENTER)
+        
         conta.send_keys('01.0 [Espelho Bradesco] Receitas/Despesas FLUXO')
         time.sleep(2)    
 
@@ -142,25 +173,31 @@ def func(cliente):
     #recebido
     driver.find_element(By.XPATH, '//*[@id="formStatement"]/div[2]/div[2]/div[2]/label[4]/div/span[1]').click()
     time.sleep(2)
-
+    
     #multa
-    valor_f = valor.text
-    valor_formatado = valor_f.replace('.', '').replace(',','.')
-    valor_p = document['VALOR'][cliente].replace('.', '').replace(',','.')
-    print(valor_formatado)
-    sobra = float(valor_p) - float(valor_formatado)
-    if (sobra != 0 and sobra in range(0, 30)):
-        driver.find_element(By.XPATH, '//*[@id="interest"]').send_keys('{:.0f}'.format(sobra))
+    if sobra == 0.0:
+        None
+    elif sobra < 1:
+        sobra_decimal = '{:.2f}'.format(sobra).lstrip('0')
+        driver.find_element(By.XPATH, '//*[@id="interest"]').send_keys(',' + sobra_decimal)
+    else:
+        driver.find_element(By.XPATH, '//*[@id="interest"]').send_keys('{:.2f}'.format(sobra).replace('.', ','))
     time.sleep(3)
 
     #salvar
-    driver.find_element(By.XPATH, '//*[@id="modal-footer-statement"]/div/button').click()
-
-    # driver.find_element(By.XPATH, '//*[@id="finance-save-options"]/div[1]/button[2]').click()
+    driver.find_element(By.XPATH, '//*[@id="finance-save-options"]/div[1]/button[2]').click()
+    time.sleep(1)
+    
+    try:
+        #popup dps de clicar pra salvar
+        driver.find_element(By.XPATH, '//*[@id="newPopupManagerReplacement"]/div[3]/a[1]').click()
+        time.sleep(5)
+    except:
+        None
+        
     time.sleep(5)
     print(f'feito cliente: {document["CLIENTE"][cliente]}')
-    document['FEITO'][cliente].update('feito')
-
+    
 # --------- #
 
 while True:
@@ -181,3 +218,5 @@ while True:
 for l in range(len(document['CLIENTE'])):
     func(cliente)
     cliente += 1
+
+driver.quit()

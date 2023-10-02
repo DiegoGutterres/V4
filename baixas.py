@@ -104,6 +104,14 @@ time.sleep(6)
 
 # --------- #
 
+def carregando():
+    while True:
+        loading = driver.find_element(By.XPATH, '//*[@id="loading"]').get_attribute('style')
+        if loading == 'display: block;':         
+            print('sleeping')
+            time.sleep(5)
+        else:
+            break
 
 def func(cliente):
     pesquisar = driver.find_element(By.XPATH, '//*[@id="textSearch"]')
@@ -111,15 +119,13 @@ def func(cliente):
     pesquisar.send_keys(document['CLIENTE'][cliente])
     pesquisar.send_keys(Keys.ENTER)
 
+    carregando()
 
-    while True:
-       loading = driver.find_element(By.XPATH, '//*[@id="loading"]').get_attribute('style')
-       if loading == 'display: block;':         
-          print('sleeping')
-          time.sleep(5)
-       else:
-        break
-    
+    #checar se tem que dar enter dnv
+    if driver.find_element(By.XPATH, '//*[@id="statement-list-container"]/div/div[1]/b[2]/b').text not in driver.find_element(By.XPATH, '//*[@id="statement-list-container"]/table[1]/tbody/tr[1]/td[4]/div[1]/span[1]').text:
+        pesquisar.send_keys(Keys.ENTER)
+        carregando()
+
     #ver se existe um lançamento
     exist = driver.find_element(By.XPATH, '//*[@id="statement-list-container"]/table[1]/tbody/tr[1]/td[4]/div[1]').is_displayed()
     if exist == False:
@@ -154,13 +160,12 @@ def func(cliente):
     #conta azul funciona por id de conta, não pelo nome! (conta itau: 29329659)
     conta = driver.find_element(By.XPATH, '//*[@id="newIdConta"]')
     banco = driver.find_element(By.XPATH, '//*[@id="idBanco"]').get_attribute('value')
-    if banco != '29329698': #teste com a conta do bradesco
+    if banco != '29329659': #teste com a conta do bradesco
         conta.click()
         conta.send_keys(Keys.CONTROL, 'A', Keys.DELETE)
-        # conta.send_keys('01.0 [Espelho Itaú] Receitas/Despesas FLUXO')
+        conta.send_keys('01.0 [Espelho Itaú] Receitas/Despesas FLUXO')
         # conta.send_keys(Keys.ENTER)
         
-        conta.send_keys('01.0 [Espelho Bradesco] Receitas/Despesas FLUXO')
         time.sleep(2)    
 
     #data

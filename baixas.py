@@ -140,15 +140,11 @@ def func(cliente):
     valor_f = valor.text
     valor_formatado = valor_f.replace('.', '').replace(',','.')
     valor_p = document['VALOR'][cliente].replace('.', '').replace(',','.')
-    print(valor_formatado)
-    print(valor_p)
     
     sobra = float(valor_p) - float(valor_formatado)
-    print(sobra)
     if (sobra < 0.0 or sobra > 30.0):
         return
     
-
     #abrir
     try: 
         driver.find_element(By.XPATH, '//*[@id="statement-list-container"]/table[1]/tbody/tr[1]/td[4]/div[1]/span[1]').click()
@@ -201,7 +197,7 @@ def func(cliente):
         None
         
     time.sleep(5)
-    print(f'feito cliente: {document["CLIENTE"][cliente]}')
+    print(f'{document["CLIENTE"][cliente]}')
     
 # --------- #
 
@@ -216,7 +212,6 @@ while True:
             cliente = i
             break
         else: 
-            print('sem transferencia')
             cliente = 0
     break
 

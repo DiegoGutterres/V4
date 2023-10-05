@@ -150,7 +150,6 @@ def func(cliente):
         print('none')
         return
     
-
     #abrir
     try: 
         driver.find_element(By.XPATH, '//*[@id="statement-list-container"]/table[1]/tbody/tr[1]/td[4]/div[1]/span[1]').click()

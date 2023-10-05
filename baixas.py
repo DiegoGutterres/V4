@@ -57,6 +57,7 @@ time.sleep(5)
 driver.find_element(By.XPATH, '//*[@id="bank-filter"]/button').click()
 
 #all
+#listar a ordem e largar num loop
 driver.find_element(By.XPATH, '//*[@id="bank-filter"]/ul/li[1]/a/span[1]').click()
 time.sleep(0.3)
 
@@ -84,6 +85,9 @@ driver.find_element(By.XPATH, '//*[@id="bank-filter"]/ul/div/li[11]/a/span').cli
 #nova data
 driver.find_element(By.XPATH, '//*[@id="bank-filter"]/ul/div/li[16]/a/span').click()
 
+#cartao iugu
+driver.find_element(By.XPATH, '//*[@id="bank-filter"]/ul/div/li[39]/a/span').click()
+
 #renovaçao
 driver.find_element(By.XPATH, '//*[@id="bank-filter"]/ul/div/li[42]/a/span').click()
 
@@ -108,7 +112,7 @@ def carregando():
     while True:
         loading = driver.find_element(By.XPATH, '//*[@id="loading"]').get_attribute('style')
         if loading == 'display: block;':         
-            print('sleeping')
+            #print('sleeping')
             time.sleep(5)
         else:
             break
@@ -120,17 +124,17 @@ def func(cliente):
     pesquisar.send_keys(Keys.ENTER)
 
     carregando()
+    
+    #ver se existe um lançamento
+    exist = driver.find_element(By.XPATH, '//*[@id="statement-list-container"]/table[1]/tbody/tr[1]/td[4]/div[1]').is_displayed()
+    if exist == False:
+        print('none')
+        return
 
     #checar se tem que dar enter dnv
     if driver.find_element(By.XPATH, '//*[@id="statement-list-container"]/div/div[1]/b[2]/b').text not in driver.find_element(By.XPATH, '//*[@id="statement-list-container"]/table[1]/tbody/tr[1]/td[4]/div[1]/span[1]').text:
         pesquisar.send_keys(Keys.ENTER)
         carregando()
-
-    #ver se existe um lançamento
-    exist = driver.find_element(By.XPATH, '//*[@id="statement-list-container"]/table[1]/tbody/tr[1]/td[4]/div[1]').is_displayed()
-    if exist == False:
-        return
-    print(document['CLIENTE'][cliente])
 
  
     #se o valor for mt diferente ele vai só pular pro proximo
@@ -140,12 +144,10 @@ def func(cliente):
     valor_f = valor.text
     valor_formatado = valor_f.replace('.', '').replace(',','.')
     valor_p = document['VALOR'][cliente].replace('.', '').replace(',','.')
-    print(valor_formatado)
-    print(valor_p)
     
     sobra = float(valor_p) - float(valor_formatado)
-    print(sobra)
     if (sobra < 0.0 or sobra > 30.0):
+        print('none')
         return
     
 
@@ -154,6 +156,7 @@ def func(cliente):
         driver.find_element(By.XPATH, '//*[@id="statement-list-container"]/table[1]/tbody/tr[1]/td[4]/div[1]/span[1]').click()
         time.sleep(3)
     except:
+        print('none')
         return        
 
 
@@ -201,7 +204,7 @@ def func(cliente):
         None
         
     time.sleep(5)
-    print(f'feito cliente: {document["CLIENTE"][cliente]}')
+    print(f'{document["CLIENTE"][cliente]}')
     
 # --------- #
 
@@ -213,10 +216,9 @@ while True:
 
         if valor_float < -1000.00:
             print(f'transferencia de R${transferencia[i]}')
-            cliente = i
+            cliente = i + 1
             break
         else: 
-            print('sem transferencia')
             cliente = 0
     break
 

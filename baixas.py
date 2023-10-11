@@ -86,7 +86,7 @@ driver.find_element(By.XPATH, '//*[@id="bank-filter"]/ul/div/li[11]/a/span').cli
 driver.find_element(By.XPATH, '//*[@id="bank-filter"]/ul/div/li[16]/a/span').click()
 
 #cartao iugu
-driver.find_element(By.XPATH, '//*[@id="bank-filter"]/ul/div/li[39]/a/span').click()
+driver.find_element(By.XPATH, '//*[@id="bank-filter"]/ul/div/li[35]/a/span').click()
 
 #renovaçao
 driver.find_element(By.XPATH, '//*[@id="bank-filter"]/ul/div/li[42]/a/span').click()
@@ -142,9 +142,12 @@ def func(cliente):
     
     # -- tem que transformar em float para conseguir comparar --
     valor_f = valor.text
-    valor_formatado = valor_f.replace('.', '').replace(',','.')
+    if '.' in valor_f:
+        valor_formatado = valor_f.replace('.', '').replace(',','.')
+    else:
+        valor_formatado = valor_f.replace(',','.')
+
     valor_p = document['VALOR'][cliente].replace('.', '').replace(',','.')
-    
     sobra = float(valor_p) - float(valor_formatado)
     if (sobra < 0.0 or sobra > 30.0):
         print('none')

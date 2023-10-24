@@ -158,12 +158,14 @@ def func(cliente):
     valor_p = document['VALOR'][cliente].replace('.', '').replace(',','.')
     try:
         sobra = float(valor_p) - float(valor_formatado)
-        if (sobra <= -5 or round(sobra) > float(valor_formatado) * 0.03 ):
+        if (sobra <= -5 or round(sobra) > float(valor_formatado) * 0.04 ):
             print('none')
             return
     except ValueError:
         print('none')
         return
+    
+    time.sleep(2)
     #abrir
     try:
         driver.find_element(By.XPATH, '//*[@id="statement-list-container"]/table[1]/tbody/tr[1]/td[4]/div[1]/span[1]').click()

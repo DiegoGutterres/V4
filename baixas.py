@@ -203,9 +203,8 @@ def func(cliente):
         sobra_decimal = '{:.2f}'.format(sobra).lstrip('0')
         driver.find_element(By.XPATH, '//*[@id="interest"]').send_keys(',' + sobra_decimal)
 
-    elif sobra < 0:
+    elif sobra < 0 and sobra > -1.61:
         sobra_desconto = '{:.2f}'.format(sobra).replace('.', ',')
-        print(sobra_desconto)
         driver.find_element(By.XPATH, '//*[@id="discount"]').send_keys(sobra_desconto)
 
     elif sobra <= 5 and sobra >= -5:

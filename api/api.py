@@ -6,7 +6,7 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 
 # If modifying these scopes, delete the file token.pickle.
-SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly']
+SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
 
 # The ID and range of a sample spreadsheet.
 document = '1uZyVnpHfCYwRptwnZLobW2Xnd__-sPn27o16oNpUDAA'
@@ -36,7 +36,8 @@ def main():
     result = sheet.values().get(spreadsheetId=document,
                                 range=document_range).execute()
     values = result.get('values', [])
-            
+        
     return values, sheet
+
 
 valores = main()

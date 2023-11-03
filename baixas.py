@@ -11,6 +11,8 @@ from api.api import main
 
 valores, sheet = main()
 
+#lista de controle de feitos
+clientes_feitos = []
 
 #login automatico
 from config import CHROME_PROFILE_PATH
@@ -230,7 +232,7 @@ def func(cliente):
 
     time.sleep(3)
     print(f'{document["CLIENTE"][cliente]}')
-
+    clientes_feitos.append('feito')
 # --------- #
 
 while True:
@@ -248,8 +250,10 @@ while True:
     break
 
 for l in range(len(document['CLIENTE'])):
-    if finished == 3:
-        driver.quit()
     func(cliente)
     cliente += 1
 
+document['FEITO'] = clientes_feitos
+document.update()
+
+driver.quit()

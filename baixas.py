@@ -121,7 +121,7 @@ def carregando():
         else:
             break
 
-def func(cliente):
+def func(cliente, finished):
     pesquisar = driver.find_element(By.XPATH, '//*[@id="textSearch"]')
     pesquisar.send_keys(Keys.CONTROL, 'a', Keys.DELETE)
     try:
@@ -130,7 +130,7 @@ def func(cliente):
         carregando()
     except:
         finished += 1
-        return
+        return finished
 
     #ver se existe um lançamento
     exist = driver.find_element(By.XPATH, '//*[@id="conteudo"]/div/div[2]/div[2]/div/div[6]').get_attribute("style")
@@ -171,7 +171,11 @@ def func(cliente):
     #abrir
     try:
         driver.find_element(By.XPATH, '//*[@id="statement-list-container"]/table[1]/tbody/tr[1]/td[4]/div[1]/span[1]').click()
-        time.sleep(3)
+        time.sleep(2)
+        try:
+            driver.find_element(By.XPATH, '//*[@id="statement-list-container"]/table[1]/tbody/tr[1]/td[4]/div[1]/span[1]').click()
+        except:
+            time.sleep(1)
     except KeyError:
         print('none')
         return
@@ -250,7 +254,10 @@ while True:
     break
 
 for l in range(len(document['CLIENTE'])):
-    func(cliente)
+    func(cliente, finished)
+    if (finished > 3):
+        print('-'*50)
+        driver.quit()
     cliente += 1
 
 document['FEITO'] = clientes_feitos

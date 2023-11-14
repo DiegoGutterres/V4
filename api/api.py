@@ -36,7 +36,7 @@ def main():
     result = sheet.values().get(spreadsheetId=document,
                                 range=document_range).execute()
     values = result.get('values', [])
-        
+    
     return values, sheet
 
 

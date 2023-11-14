@@ -11,9 +11,6 @@ from api.api import main
 
 valores, sheet = main()
 
-#lista de controle de feitos
-clientes_feitos = []
-
 #login automatico
 from config import CHROME_PROFILE_PATH
 control = 0
@@ -27,6 +24,7 @@ document.set_index('DATA')
 #driver
 options = webdriver.ChromeOptions()
 options.add_argument(CHROME_PROFILE_PATH)
+options.add_argument("--headless=new")
 options.add_experimental_option(
     'prefs', {
         "profile.managed_default_content_settings.images": 2,
@@ -58,41 +56,13 @@ time.sleep(3)
 
 #filtrar contas
 driver.find_element(By.XPATH, '//*[@id="bank-filter"]/button').click()
+contas = [2, 3, 4, 5, 9, 10, 11, 16, 35, 39,43]
 
-#all
-#listar a ordem e largar num loop
 driver.find_element(By.XPATH, '//*[@id="bank-filter"]/ul/li[1]/a/span[1]').click()
 time.sleep(0.3)
 
-#bradesco
-driver.find_element(By.XPATH, '//*[@id="bank-filter"]/ul/div/li[2]/a/span').click()
-
-#itau
-driver.find_element(By.XPATH, '//*[@id="bank-filter"]/ul/div/li[3]/a/span').click()
-
-#sap
-driver.find_element(By.XPATH, '//*[@id="bank-filter"]/ul/div/li[4]/a/span').click()
-
-#sicredi
-driver.find_element(By.XPATH, '//*[@id="bank-filter"]/ul/div/li[5]/a/span').click()
-
-#churn provavel
-driver.find_element(By.XPATH, '//*[@id="bank-filter"]/ul/div/li[9]/a/span').click()
-
-#inad
-driver.find_element(By.XPATH, '//*[@id="bank-filter"]/ul/div/li[10]/a/span').click()
-
-#franq inad
-driver.find_element(By.XPATH, '//*[@id="bank-filter"]/ul/div/li[11]/a/span').click()
-
-#nova data
-driver.find_element(By.XPATH, '//*[@id="bank-filter"]/ul/div/li[16]/a/span').click()
-
-#cartao iugu
-driver.find_element(By.XPATH, '//*[@id="bank-filter"]/ul/div/li[35]/a/span').click()
-
-#renovaçao
-driver.find_element(By.XPATH, '//*[@id="bank-filter"]/ul/div/li[42]/a/span').click()
+for conta in contas:
+    driver.find_element(By.XPATH, f'//*[@id="bank-filter"]/ul/div/li[{conta}]/a/span').click()
 
 #aplicar
 driver.find_element(By.XPATH, '//*[@id="bank-filter"]/ul/li[3]/div/button').click()
@@ -116,7 +86,6 @@ def carregando():
     while True:
         loading = driver.find_element(By.XPATH, '//*[@id="loading"]').get_attribute('style')
         if loading == 'display: block;':
-            #print('sleeping')
             time.sleep(3)
         else:
             break
@@ -140,13 +109,13 @@ def func(cliente, finished):
 
     #checar se tem que dar enter dnv
     try:
-
         if driver.find_element(By.XPATH, '//*[@id="statement-list-container"]/div/div[1]/b[2]/b').text not in driver.find_element(By.XPATH, '//*[@id="statement-list-container"]/table[1]/tbody/tr[1]/td[4]/div[1]/span[1]').text:
             pesquisar.send_keys(Keys.ENTER)
             carregando()
     except:
             pesquisar.send_keys(Keys.ENTER)
             carregando()
+
     #se o valor for mt diferente ele vai só pular pro proximo
     valor = driver.find_element(By.XPATH, '//*[@id="statement-list-container"]/table[1]/tbody/tr[1]/td[5]/div[2]')
 
@@ -168,6 +137,7 @@ def func(cliente, finished):
         return
     
     time.sleep(2)
+
     #abrir
     try:
         driver.find_element(By.XPATH, '//*[@id="statement-list-container"]/table[1]/tbody/tr[1]/td[4]/div[1]/span[1]').click()
@@ -176,7 +146,7 @@ def func(cliente, finished):
             driver.find_element(By.XPATH, '//*[@id="statement-list-container"]/table[1]/tbody/tr[1]/td[4]/div[1]/span[1]').click()
         except:
             time.sleep(1)
-    except KeyError:
+    except:
         print('none')
         return
 
@@ -187,8 +157,8 @@ def func(cliente, finished):
          conta.click()
          conta.send_keys(Keys.CONTROL, 'A', Keys.DELETE)
          conta.send_keys('01.0 [Espelho Itaú] Receitas/Despesas FLUXO')
-         #conta.send_keys(Keys.ENTER)
-    time.sleep(3)
+         time.sleep(3)
+    time.sleep(1)
 
     #data
     today = date.today()
@@ -203,7 +173,7 @@ def func(cliente, finished):
 
     #multa
     if sobra == 0:
-        None
+        pass
 
     elif sobra < 1 and sobra >= 0.01:
         sobra_decimal = '{:.2f}'.format(sobra).lstrip('0')
@@ -236,7 +206,24 @@ def func(cliente, finished):
 
     time.sleep(3)
     print(f'{document["CLIENTE"][cliente]}')
-    clientes_feitos.append('feito')
+
+    #oq vai ser requisitado na api
+    batch_update_values_request_body = {
+        "valueInputOption": "RAW",
+        "data": [
+            {
+                'range': f'start!D{cliente+2}:D1000',
+                'majorDimension': "COLUMNS",
+                'values': [
+                    ["feito"]
+                ]
+            }
+        ]
+    }
+
+    sheet.values().batchUpdate(
+    spreadsheetId='1uZyVnpHfCYwRptwnZLobW2Xnd__-sPn27o16oNpUDAA', body=batch_update_values_request_body
+    ).execute()
 # --------- #
 
 while True:
@@ -259,8 +246,5 @@ for l in range(len(document['CLIENTE'])):
         print('-'*50)
         driver.quit()
     cliente += 1
-
-document['FEITO'] = clientes_feitos
-document.update()
 
 driver.quit()

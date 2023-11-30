@@ -1,4 +1,1 @@
-./api
-teste.py
-./token.pickle
-./_pycache_
+.gitignore

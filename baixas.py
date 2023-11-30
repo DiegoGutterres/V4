@@ -24,7 +24,7 @@ document.set_index('DATA')
 #driver
 options = webdriver.ChromeOptions()
 options.add_argument(CHROME_PROFILE_PATH)
-options.add_argument("--headless=new")
+#options.add_argument("--headless=new")
 options.add_experimental_option(
     'prefs', {
         "profile.managed_default_content_settings.images": 2,
@@ -44,8 +44,13 @@ while True:
         time.sleep(2)
 
 #exibir
-driver.find_element(By.XPATH, '//*[@id="type-filter-controller"]/span').click()
-time.sleep(.5)
+try:
+    driver.find_element(By.XPATH, '//*[@id="type-filter-controller"]/span').click()
+    time.sleep(.5)
+except:
+    time.sleep(2)
+    driver.find_element(By.XPATH, '//*[@id="type-filter-controller"]/span').click()
+
 
 #recebido
 driver.find_element(By.XPATH, '//*[@id="typeFilterContainer"]/li[4]/a/span[1]').click()
@@ -120,7 +125,11 @@ def func(cliente, finished):
     valor = driver.find_element(By.XPATH, '//*[@id="statement-list-container"]/table[1]/tbody/tr[1]/td[5]/div[2]')
 
     # -- tem que transformar em float para conseguir comparar --
-    valor_f = valor.text
+    try:
+        valor_f = valor.text
+    except:
+        return
+    
     if '.' in valor_f:
         valor_formatado = valor_f.replace('.', '').replace(',','.')
     else:

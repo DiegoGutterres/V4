@@ -37,11 +37,11 @@ driver.get("https://app.contaazul.com/#/financeiro/contas-a-receber?view=revenue
 #pickle.dump(driver.get_cookies(), open("cookies.pkl", "wb"))
 
 #dps de ter criado o arq de cookies:
-    """
+"""
 cookies = pickle.load(open("cookies.pkl", "rb"))
 for cookie in cookies:
     driver.add_cookie(cookie)
-    """
+"""
 #inicio da automação
 while True:
     try:

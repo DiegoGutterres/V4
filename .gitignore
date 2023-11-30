@@ -1,5 +1,4 @@
-api
+./api
 teste.py
-token.pickle
-config.py
-_pycache_
+./token.pickle
+./_pycache_

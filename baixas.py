@@ -8,6 +8,10 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from datetime import date
+import datetime
+import time
+
+
 from api.api import main
 
 valores, sheet = main()
@@ -15,6 +19,10 @@ valores, sheet = main()
 #login automatico
 from config import CHROME_PROFILE_PATH
 control = 0
+
+#controle de tempo
+start_time = datetime.datetime.now()
+start = time.time()
 
 #excel
 import pandas as pd
@@ -265,4 +273,9 @@ for l in range(len(document['CLIENTE'])):
         driver.quit()
     cliente += 1
 
+end_time = datetime.datetime.now()
+end = time.time()
+elapsed_time = start - end
+
+print(f"Inicio = {start_time.hour}:{start_time.minute}:{start_time.second}\nFinal = {end_time.hour}:{end_time.minute}:{end_time.second}\nTempo total = {elapsed_time}")
 driver.quit()
